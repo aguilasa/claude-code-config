@@ -1,3 +1,9 @@
+---
+description: Use when the user asks to commit changes, wants a conventional commit message, or types /commit. Stages files if needed, analyzes the diff, and splits unrelated changes into separate commits.
+argument-hint: [optional context for the message]
+allowed-tools: Bash(git status:*), Bash(git diff:*), Bash(git add:*), Bash(git commit:*), Bash(git log:*), Read
+---
+
 # Claude Command: Commit
 
 This command helps you create well-formatted commits with conventional commit messages

@@ -1,4 +1,4 @@
-# claude
+# claude-code-config
 
 Personal artifacts for [Claude Code](https://claude.com/claude-code): commands, skills, agents, hooks, rules, and configuration.
 
@@ -39,3 +39,7 @@ Careful: if `~/.claude/commands` and friends already have content, back it up fi
 ## Secrets
 
 No tokens, keys, or `settings.local.json` in this repo — see `.gitignore`. MCP configs are versioned with placeholders (`${VAR}`), never real values.
+
+## License
+
+MIT — see [LICENSE](LICENSE).
