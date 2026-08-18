@@ -1,0 +1,72 @@
+# ---- Secrets and credentials (NEVER commit) ----
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+credentials
+credentials.json
+secrets.json
+.netrc
+.npmrc
+auth.json
+token
+*token*.json
+.aws/
+.ssh/
+
+# ---- Claude Code local state ----
+.claude/settings.local.json
+.claude/*.local.json
+.claude/todos/
+.claude/statsig/
+.claude/shell-snapshots/
+.claude/projects/
+.claude/history.jsonl
+.claude.json
+.claude.json.backup
+.mcp.local.json
+settings.local.json
+
+# ---- Transcripts / session logs ----
+*.jsonl
+transcripts/
+sessions/
+logs/
+*.log
+
+# ---- Scratch / temporary ----
+scratchpad/
+tmp/
+temp/
+*.tmp
+*.bak
+*.orig
+*.swp
+*~
+
+# ---- Dependencies ----
+node_modules/
+.pnpm-store/
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+
+# ---- Build ----
+dist/
+build/
+*.egg-info/
+
+# ---- OS / editor ----
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/*
+!.vscode/extensions.json
