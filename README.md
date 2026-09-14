@@ -9,6 +9,7 @@ Personal artifacts for [Claude Code](https://claude.com/claude-code): commands, 
 | `commands/` | Slash commands (`/name`). One `.md` file per command. |
 | `skills/` | Skills. One directory per skill, with `SKILL.md` plus supporting resources. |
 | `agents/` | Subagents (`.md` with frontmatter `name`, `description`, `tools`, `model`). |
+| `rules/` | Reusable convention files (git, code style) referenced from `CLAUDE.md`. |
 | `hooks/` | Hook scripts (PreToolUse, PostToolUse, SessionStart, etc.). |
 | `output-styles/` | Output styles / response personalities. |
 | `settings/` | Example and backup `settings.json` files (no secrets). |
