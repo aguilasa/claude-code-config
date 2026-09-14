@@ -59,4 +59,3 @@ chore/spring-dependency-updates
 
 - use the `gh` CLI to create pull requests (`gh pr create`)
 - whenever a pull request is requested, assume the current branch is to be merged into the `staging` branch, unless the user specifies otherwise. If the current branch is not on the remote, push it before opening the pull request.
-- the PR body does not mention `.claude/`, `CLAUDE.md` or `docs/` (see the section above) — explain the rule instead of pointing at the file that holds it
