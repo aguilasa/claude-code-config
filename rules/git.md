@@ -58,4 +58,3 @@ chore/spring-dependency-updates
 ## Pull requests
 
 - use the `gh` CLI to create pull requests (`gh pr create`)
-- whenever a pull request is requested, assume the current branch is to be merged into the `staging` branch, unless the user specifies otherwise. If the current branch is not on the remote, push it before opening the pull request.
