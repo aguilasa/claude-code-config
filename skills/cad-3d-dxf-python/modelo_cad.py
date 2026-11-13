@@ -249,7 +249,8 @@ def _tris(solidos_cores, tol=1.2, explode=None):
     return tris, cores
 
 
-SOLIDCRAFT = shutil.which('solidcraft-cli')
+SOLIDCRAFT = shutil.which('solidcraft-cli') or next(
+    (p for p in (r'C:\Program Files\SolidCraft\solidcraft-cli.exe',) if os.path.isfile(p)), None)
 
 
 def render_solidcraft(itens, arq, elev, azim, px=1600, margem=15):
