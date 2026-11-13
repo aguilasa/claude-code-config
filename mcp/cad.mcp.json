@@ -3,7 +3,7 @@
     "solidcraft": {
       "type": "stdio",
       "command": "solidcraft-cli",
-      "args": ["mcp", "--allow-path", "${SOLIDCRAFT_ALLOW_PATH}"]
+      "args": ["mcp", "--headless", "--allow-path", "${SOLIDCRAFT_ALLOW_PATH}"]
     },
     "solidcraft-live": {
       "type": "stdio",
