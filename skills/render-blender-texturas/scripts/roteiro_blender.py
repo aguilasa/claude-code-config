@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 """Roteiro do Blender para render com textura de imagem, sem janela.
 
-    flatpak run org.blender.Blender -b --python roteiro_blender.py -- cfg.json
-    # ou: blender -b --python roteiro_blender.py -- cfg.json
+    flatpak run org.blender.Blender -b --python roteiro_blender.py -- cfg.json      # Linux
+    "C:/Program Files/Blender Foundation/Blender 5.3/blender.exe" -b --python roteiro_blender.py -- cfg.json
 
 cfg.json:
 {
   "px": 1400, "aspecto": 0.72, "amostras": 64,
+  "dispositivo": "OPTIX",             # OPTIX | CUDA | CPU (padrao OPTIX; sem GPU cai na CPU)
+  "luz": 1.0,                         # multiplica as luzes (ja escalam com o tamanho do modelo)
   "materiais": {                      # prefixo do nome do objeto -> material
     "M":  {"img": "/caminho/madeira.jpg", "rug": 0.62, "uv": true},
     "A":  {"img": "/caminho/preto.jpg",   "rug": 0.70, "uv": true},
@@ -38,6 +40,27 @@ from mathutils import Vector
 
 cfg = json.loads(open(sys.argv[sys.argv.index('--') + 1]).read())
 TL, TH = (v / 1000 for v in cfg.get('tex_mm', (900, 1950)))   # o glTF vem em metros
+
+
+def dispositivo(tipo):
+    """Liga a GPU no Cycles (OPTIX ou CUDA) e devolve 'GPU'; sem GPU desse tipo, 'CPU'."""
+    if tipo == 'CPU':
+        return 'CPU'
+    p = bpy.context.preferences.addons['cycles'].preferences
+    try:
+        p.compute_device_type = tipo
+        p.refresh_devices()
+    except TypeError:
+        print('dispositivo %s indisponivel: CPU' % tipo, flush=True)
+        return 'CPU'
+    gpus = [d for d in p.devices if d.type == tipo]
+    for d in p.devices:
+        d.use = d.type == tipo
+    if not gpus:
+        print('nenhuma GPU %s: CPU' % tipo, flush=True)
+        return 'CPU'
+    print('render em', ', '.join(d.name for d in gpus), tipo, flush=True)
+    return 'GPU'
 
 
 def material(nome, img=None, cor=(0.5, 0.5, 0.5), rug=0.5, metal=0.0):
@@ -84,13 +107,20 @@ def escolhe(nome, mats):
     return max(casam, key=len) if casam else None
 
 
+R_REF = 1.05  # raio (m) da escrivaninha 140x70 baixa-aberta, onde as energias foram acertadas
+
+
 def luzes(alvo, raio):
-    """Tres luzes de area em multiplos do raio do modelo (valores que deram certo)."""
+    """Tres luzes de area em multiplos do raio do modelo (valores que deram certo).
+    A luz cai com o quadrado da distancia, e a distancia acompanha o raio: energia
+    escala com (raio/R_REF)^2 e tamanho com raio/R_REF, assim a peca de 5 cm e o
+    armario de 2 m saem com a mesma exposicao. cfg "luz" multiplica tudo (padrao 1)."""
+    k = raio / R_REF
     for nome, pos, e, tam in (('chave', (-2.2, -2.6, 3.0), 380, 2.5),
                               ('enchimento', (2.6, -1.8, 1.6), 110, 3.0),
                               ('fundo', (0.5, 3.0, 2.6), 160, 2.5)):
         L = bpy.data.lights.new(nome, 'AREA')
-        L.energy, L.size = e, tam
+        L.energy, L.size = e * k * k * cfg.get('luz', 1.0), tam * k
         o = bpy.data.objects.new(nome, L)
         bpy.context.scene.collection.objects.link(o)
         o.location = alvo + Vector(pos) * raio
@@ -119,6 +149,8 @@ def camera(alvo, raio, job):
                            alvo.z + d * math.sin(pitch)))
     cam.rotation_euler = (alvo - cam.location).to_track_quat('-Z', 'Y').to_euler()
     cam.data.lens = job.get('lente', 35)
+    # recorte padrao (0,1 m) corta peca pequena vista de perto
+    cam.data.clip_start, cam.data.clip_end = d * 0.01, max(1000.0, d * 100)
     bpy.context.scene.camera = cam
 
 
@@ -152,7 +184,7 @@ for job in cfg['jobs']:
     camera(alvo, raio, job)
     s = bpy.context.scene
     s.render.engine = 'CYCLES'
-    s.cycles.device = 'CPU'
+    s.cycles.device = dispositivo(cfg.get('dispositivo', 'OPTIX'))
     s.cycles.samples = cfg.get('amostras', 64)
     s.cycles.use_denoising = True
     s.render.resolution_x = cfg.get('px', 1400)

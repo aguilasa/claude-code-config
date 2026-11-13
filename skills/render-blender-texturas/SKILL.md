@@ -3,7 +3,7 @@ name: render-blender-texturas
 description: >-
   Render fotográfico de peças e móveis modelados por código (build123d) com textura de
   imagem real, como o padrão de um fornecedor de MDF ou o veio de madeira, no Blender sem
-  janela (Cycles na CPU). Traz o pipeline build123d → GLB → UV pela posição real com o veio
+  janela (Cycles na GPU OptiX, ou na CPU). Traz o pipeline build123d → GLB → UV pela posição real com o veio
   no comprimento da peça, os valores de luz, câmera e cor que funcionaram e um roteiro
   pronto. Use quando o usuário pedir render "com textura", "com o padrão da chapa", "mais
   bonito/realista" que cor chapada, comparar padrões de acabamento, ou quando o SolidCraft
@@ -16,19 +16,40 @@ Esta é a receita que funcionou em 2026-11-13, num móvel de MDF com o padrão r
 
 ## Quando usar o Blender e quando usar o SolidCraft
 
-- **Cor chapada:** o raytrace do SolidCraft basta. A receita está em `solidcraft.md`.
+- **Cor chapada:** o raytrace do SolidCraft basta. A receita está na skill `solidcraft` ([`../solidcraft/SKILL.md`](../solidcraft/SKILL.md)).
 - **Textura de imagem** (o padrão real de um fornecedor de MDF, um veio de madeira): só o Blender faz.
   - O `appearance.assign` do SolidCraft não aceita imagem.
   - Os `starter.wood.*` do SolidCraft são cor, não veio.
 - **O MCP `blender-mcp`** só funciona com o Blender aberto e o addon ligado. Para rodar em lote, use a linha de comando.
 
-## Ambiente nesta máquina
+## Ambiente (duas máquinas)
 
-- Nesta máquina, o Blender está no flatpak: `flatpak run org.blender.Blender -b --python roteiro.py -- cfg.json`. Não existe `blender` no PATH.
-- O flatpak tem `filesystems=host`, então lê e grava na home. Os caminhos podem ser absolutos.
-- O flatpak tem só `devices=dri` e **não enxerga a NVIDIA**. Rode o Cycles na CPU (16 núcleos).
-  - Com 1400 × 1008 px, 64 amostras e denoise, sai **≈ 2 min por imagem**.
-  - Para conferir, use 600 px e 16 amostras: ≈ 5 s por imagem.
+- **Linux:** Blender no flatpak: `flatpak run org.blender.Blender -b --python roteiro.py -- cfg.json`.
+  Não existe `blender` no PATH. O flatpak tem `filesystems=host` (caminhos absolutos na home
+  servem) e só `devices=dri`: **não enxerga a NVIDIA**, então o roteiro cai na CPU (16
+  núcleos). 1400 × 1008 px, 64 amostras e denoise: ≈ 2 min por imagem; 600 px e 16
+  amostras: ≈ 5 s.
+- **Windows 11:** Blender 5.3 (winget `BlenderFoundation.Blender`) em
+  `C:\Program Files\Blender Foundation\Blender 5.3\blender.exe`. Não está no PATH: usar o
+  caminho completo (`-b` para rodar sem janela).
+  - GPU **RTX 3060 Laptop (6 GB)**; o Cycles sem janela enxerga OptiX e CUDA (testado em
+    2026-11-13). CPU i7-11800H, 8 núcleos / 16 threads.
+  - Medido em 2026-11-13 (cubo de 1,6 m, sem textura): 1400 × 1008 px, 64 amostras e
+    denoise na OptiX levou **≈ 13 s no total**, contando a abertura do Blender. Cena com
+    textura e muitas peças deve demorar mais.
+  - 6 GB de VRAM: com cena grande ou textura muito pesada, se der falta de memória, usar
+    `"dispositivo": "CPU"`.
+- O roteiro usa `"dispositivo": "OPTIX"` por padrão e cai sozinho na CPU sem GPU desse tipo.
+
+## Escala da luz e da câmera
+
+- **Escala:** luz e câmera acompanham o tamanho do modelo. Energia × (raio/1,05 m)²,
+    tamanho da luz × raio/1,05 m, recorte da câmera pela distância. 1,05 m é o raio medido
+    da escrivaninha 140 × 70 baixa-aberta (repositório Luthieria, `ferramentas/render_texturas_escrivaninha.py`,
+    que tem roteiro próprio com as mesmas regras), onde as energias foram acertadas. Testado em 2026-11-13
+    com cubos de 5 cm, 0,5 m, 1,6 m e 4 m: mesma exposição e enquadramento. Antes, peça
+    pequena saía estourada de branco e a de 5 cm aparecia cortada pela câmera.
+    Ajuste fino: `"luz": 0.8` no `cfg.json` multiplica todas as luzes.
 
 ## Pipeline
 
@@ -75,7 +96,10 @@ Esta é a receita que funcionou em 2026-11-13, num móvel de MDF com o padrão r
 ## Roteiro pronto
 
 ```bash
+# Linux
 flatpak run org.blender.Blender -b --python scripts/roteiro_blender.py -- cfg.json
+# Windows (Git Bash)
+"/c/Program Files/Blender Foundation/Blender 5.3/blender.exe" -b --python scripts/roteiro_blender.py -- cfg.json
 ```
 
 O formato do `cfg.json` está no cabeçalho do roteiro. Do lado do Python do projeto, basta:
