@@ -14,17 +14,36 @@ description: >-
 
 CAD paramétrico de código aberto em Rust (https://solidcraft.io/), kernel B-rep próprio
 (SolidCore). Salva `.solidcraft` (histórico editável), exporta STEP, STL, 3MF, OBJ, URDF.
-Instalado em `/usr/bin/solidcraft` (app) e `/usr/bin/solidcraft-cli`.
+Usado em duas máquinas; ver onde está antes de chamar:
+
+- **Linux:** `/usr/bin/solidcraft` (app) e `/usr/bin/solidcraft-cli`.
+- **Windows:** `C:\Program Files\SolidCraft\` (`solidcraft.exe` e `solidcraft-cli.exe`). O
+  instalador pode não pôr a pasta no PATH; se o terminal não achar `solidcraft-cli`, usar o
+  caminho completo. Arquivos de controle do app em `%LOCALAPPDATA%\SolidCraft\control\`
+  (`current.port` diz a porta em uso).
+
+## Pasta de trabalho do MCP (regra do usuário)
+
+Os dois servidores MCP rodam com `--allow-path <pasta>`; fora dela `open`, `save`, `export`
+e `screenshot path` são recusados. A pasta é a do `--allow-path` na configuração do MCP
+(`claude mcp get solidcraft`); no Windows é `C:\solidcraft`.
+
+- **Sempre que for abrir um projeto pelo MCP, mover o arquivo para essa pasta e abrir de
+  lá.** Pode criar subpastas (ex.: `<pasta>/<projeto>/`). Mover também os arquivos de apoio
+  que o modelo usa (STEP de entrada, roteiros).
+- Avisar o usuário do caminho antigo e do novo depois de mover.
+- Saídas novas (`save`, `export`, screenshots) também vão para `<pasta>/<projeto>/`.
 
 ## Dois servidores MCP
 
 - `solidcraft-live`: conectado ao app aberto; o usuário vê o modelo aparecer. Usar só quando
-  ele pedir "live"/quer ver ao vivo. **Pré-requisito: o app precisa estar rodando com
-  `solidcraft --control 7878`** (o usuário sobe, ou rodar pelo Bash com
-  `run_in_background`). Sem isso as chamadas falham com "no SolidCraft app is listening at
-  127.0.0.1:7878"; depois de subir, a próxima chamada já conecta.
-- `solidcraft`: o mesmo, mas sem app aberto responde "no SolidCraft app is listening".
-  Para trabalho em lote sem janela, usar o `solidcraft-cli` direto pelo Bash (abaixo).
+  ele pedir "live"/quer ver ao vivo. Pré-requisito: app aberto com Preferences > Assistant >
+  Agents through MCP > "Let AI agents connect" ligado (no Windows já ligado, porta 7878),
+  ou subir com `solidcraft --control 7878` (Bash com `run_in_background`). Sem app as
+  chamadas falham com "no SolidCraft app is listening"; depois de subir, a próxima chamada
+  já conecta.
+- `solidcraft`: roda com `--headless`, sessão sem janela dentro do próprio servidor; não
+  precisa do app. Para lote e render, o `solidcraft-cli` direto pelo Bash (abaixo).
 - Antes de modelar: `skill_reference {"skill":"solidcraft-modeling"}` (SKILL.md e
   reference.md trazem formato dos comandos, planos, ids e armadilhas) e
   `inspect_design {"measure":false,"sketches":false}`; perguntar antes de `new_design`/`open`
@@ -32,12 +51,11 @@ Instalado em `/usr/bin/solidcraft` (app) e `/usr/bin/solidcraft-cli`.
 
 ### Abrir um arquivo no `solidcraft-live`
 
-O `open` recusa caminhos fora das pastas permitidas (`--allow-path` do servidor). Ele também
-aceita uma pasta `/tmp/solidcraft-mcp-<pid>-<hash>/`, que **muda a cada sessão**; a mensagem
-de erro do `open` lista as pastas aceitas. Receita: tentar o `open`, ler a pasta no erro,
-copiar o `.solidcraft` para lá, abrir de novo e tirar um `screenshot` com `view: iso`. Avisar
-que o aberto é uma cópia e dar o caminho do original. Depois de regerar o modelo, copiar de
-novo. Se o app fechar no meio, pedir que o usuário o abra e esperar o aviso, sem insistir.
+O `open` recusa caminhos fora das pastas permitidas (`--allow-path` do servidor); a
+mensagem de erro lista as aceitas. Receita: mover o `.solidcraft` para
+`<pasta>/<projeto>/` (seção acima), abrir de lá e tirar um `screenshot` com
+`view: iso`. Se um roteiro externo regerar o modelo, fazê-lo gravar direto nessa pasta.
+Se o app fechar no meio, pedir que o usuário o abra e esperar o aviso, sem insistir.
 
 ## Modelar pelo MCP (o que funcionou)
 
