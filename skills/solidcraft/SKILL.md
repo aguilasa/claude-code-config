@@ -29,15 +29,16 @@ e `screenshot path` são recusados. A pasta é a do `--allow-path` na configura�
 (`claude mcp get solidcraft`); no Windows é `C:\solidcraft`, no Linux é `~/solidcraft`
 (caminho absoluto no `--allow-path`, sem `~`). Uma pasta só por máquina, nos dois servidores.
 
-- **Linux, projeto dentro de um repositório git:** mover o arquivo tira ele do repositório.
-  Avisar o usuário; se ele quiser o arquivo versionado, depois de salvar copiar de volta
-  para o repositório (a cópia de trabalho continua em `~/solidcraft/<projeto>/`).
-
-- **Sempre que for abrir um projeto pelo MCP, mover o arquivo para essa pasta e abrir de
-  lá.** Pode criar subpastas (ex.: `<pasta>/<projeto>/`). Mover também os arquivos de apoio
-  que o modelo usa (STEP de entrada, roteiros).
-- Avisar o usuário do caminho antigo e do novo depois de mover.
-- Saídas novas (`save`, `export`, screenshots) também vão para `<pasta>/<projeto>/`.
+- **Sempre que for abrir um projeto pelo MCP, COPIAR (nunca mover) o arquivo para essa
+  pasta e abrir a cópia.** O original fica onde estava (ex.: dentro do repositório git).
+  Pode criar subpastas (ex.: `<pasta>/<projeto>/`). Copiar também os arquivos de apoio que
+  o modelo usa (STEP de entrada, roteiros). Pedido do usuário em 2026-11-16, depois de uma
+  sessão ter movido arquivos para fora do repositório.
+- Avisar o usuário onde ficou a cópia.
+- Saídas novas (`save`, `export`, screenshots) vão para `<pasta>/<projeto>/`. Se o usuário
+  editar no app e quiser guardar a mudança, copiar de volta para o lugar original (avisar
+  antes de sobrescrever o original).
+- Se um script gera o modelo, ele grava no lugar de sempre e copia para `<pasta>/<projeto>/`.
 
 ## Dois servidores MCP
 
@@ -57,9 +58,10 @@ e `screenshot path` são recusados. A pasta é a do `--allow-path` na configura�
 ### Abrir um arquivo no `solidcraft-live`
 
 O `open` recusa caminhos fora das pastas permitidas (`--allow-path` do servidor); a
-mensagem de erro lista as aceitas. Receita: mover o `.solidcraft` para
-`<pasta>/<projeto>/` (seção acima), abrir de lá e tirar um `screenshot` com
-`view: iso`. Se um roteiro externo regerar o modelo, fazê-lo gravar direto nessa pasta.
+mensagem de erro lista as aceitas. Receita: copiar o `.solidcraft` para
+`<pasta>/<projeto>/` (seção acima), abrir a cópia e tirar um `screenshot` com
+`view: iso`. Se um roteiro externo regerar o modelo, ele grava no lugar original e copia
+para essa pasta.
 Se o app fechar no meio, pedir que o usuário o abra e esperar o aviso, sem insistir.
 
 ## Modelar pelo MCP (o que funcionou)
