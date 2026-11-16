@@ -26,7 +26,12 @@ Usado em duas máquinas; ver onde está antes de chamar:
 
 Os dois servidores MCP rodam com `--allow-path <pasta>`; fora dela `open`, `save`, `export`
 e `screenshot path` são recusados. A pasta é a do `--allow-path` na configuração do MCP
-(`claude mcp get solidcraft`); no Windows é `C:\solidcraft`.
+(`claude mcp get solidcraft`); no Windows é `C:\solidcraft`, no Linux é `~/solidcraft`
+(caminho absoluto no `--allow-path`, sem `~`). Uma pasta só por máquina, nos dois servidores.
+
+- **Linux, projeto dentro de um repositório git:** mover o arquivo tira ele do repositório.
+  Avisar o usuário; se ele quiser o arquivo versionado, depois de salvar copiar de volta
+  para o repositório (a cópia de trabalho continua em `~/solidcraft/<projeto>/`).
 
 - **Sempre que for abrir um projeto pelo MCP, mover o arquivo para essa pasta e abrir de
   lá.** Pode criar subpastas (ex.: `<pasta>/<projeto>/`). Mover também os arquivos de apoio
