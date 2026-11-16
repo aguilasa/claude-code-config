@@ -8,7 +8,7 @@ Pointers for mechanical parts, jigs, machines and furniture designed by code.
 - SolidCraft (parametric CAD; MCP `solidcraft` / `solidcraft-live` and `solidcraft-cli`):
   load the `solidcraft` skill before using it. It holds the commands that worked, the
   camera convention, headless rendering through the CLI and the traps already hit.
-- SolidCraft working folder is the MCP's `--allow-path` (`C:\solidcraft` on Windows). Before
+- SolidCraft working folder is the MCP's `--allow-path` (`C:\solidcraft` on Windows, `~/solidcraft` on Linux). Before
   opening any project through the MCP, **move** it into that folder (subfolders allowed, e.g.
   `<folder>/<project>/`) and open it from there; tell the user the old and new path.
   Saves, exports and screenshots go there too.
